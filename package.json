@@ -1,0 +1,40 @@
+{
+  "name": "love-vault",
+  "version": "1.0.0",
+  "description": "Aplikasi penyimpanan kenangan dan foto wisata",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "nodemon server.js",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-client": "cd client && npm install",
+    "install-all": "npm install && npm run install-client",
+    "build": "cd client && npm run build"
+  },
+  "keywords": [
+    "memories",
+    "photos",
+    "travel",
+    "gallery"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.35.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.1",
+    "sequelize-cli": "^6.6.2"
+  }
+}
