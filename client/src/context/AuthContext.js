@@ -174,7 +174,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       return { 
         success: false, 
-        error: err.response?.data.message || 'Failed to update profile'
+        error: err.response?.data?.msg || err.response?.data?.message || 'Failed to update profile'
       };
     }
   };

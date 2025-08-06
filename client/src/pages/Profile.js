@@ -1,11 +1,13 @@
 import React, { useState, useContext } from 'react';
 import { toast } from 'react-toastify';
-import { FaUser, FaKey, FaEnvelope, FaLock } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaUser, FaKey, FaEnvelope, FaLock, FaTrashAlt, FaExclamationTriangle } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
 
 // Halaman Profile dengan design modern minimalis
 const Profile = () => {
-  const { user, updateProfile } = useContext(AuthContext);
+  const { user, updateProfile, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [profileData, setProfileData] = useState({
     username: user?.username || '',
@@ -16,6 +18,11 @@ const Profile = () => {
   });
 
   const [activeTab, setActiveTab] = useState('profile');
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    step: 0,
+    confirmText: '',
+    password: ''
+  });
 
   const { username, email, currentPassword, newPassword, confirmPassword } = profileData;
 
@@ -74,6 +81,48 @@ const Profile = () => {
     }
   };
 
+  // Fungsi untuk menghapus akun
+  const deleteAccount = async () => {
+    try {
+      const response = await fetch('/api/users/account', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': localStorage.getItem('token')
+        },
+        body: JSON.stringify({
+          password: deleteConfirmation.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success('Akun berhasil dihapus. Selamat tinggal!');
+        logout();
+        navigate('/login');
+      } else {
+        toast.error(data.msg || 'Gagal menghapus akun');
+      }
+    } catch (err) {
+      toast.error('Terjadi kesalahan saat menghapus akun');
+    }
+  };
+
+  // Handle langkah konfirmasi hapus akun
+  const handleDeleteStep = (step) => {
+    setDeleteConfirmation(prev => ({ ...prev, step }));
+  };
+
+  // Reset konfirmasi hapus akun
+  const resetDeleteConfirmation = () => {
+    setDeleteConfirmation({
+      step: 0,
+      confirmText: '',
+      password: ''
+    });
+  };
+
   return (
     <div>
       {/* Header */}
@@ -113,6 +162,15 @@ const Profile = () => {
               onClick={() => setActiveTab('password')}
             >
               <FaKey /> Ubah Password
+            </button>
+            <button
+              className={`tab-btn danger ${activeTab === 'delete' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('delete');
+                resetDeleteConfirmation();
+              }}
+            >
+              <FaTrashAlt /> Hapus Akun
             </button>
           </div>
 
@@ -229,6 +287,133 @@ const Profile = () => {
                       </button>
                     </div>
                   </form>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'delete' && (
+              <div className="profile-form-card danger">
+                <div className="card-header danger">
+                  <h2>
+                    <FaExclamationTriangle /> Hapus Akun Permanen
+                  </h2>
+                  <p>Tindakan ini akan menghapus akun Anda secara permanen dan tidak dapat dibatalkan</p>
+                </div>
+                
+                <div className="card-body">
+                  {deleteConfirmation.step === 0 && (
+                    <div className="delete-warning">
+                      <div className="warning-box">
+                        <FaExclamationTriangle className="warning-icon" />
+                        <h3>Peringatan!</h3>
+                        <p>Jika Anda menghapus akun, hal-hal berikut akan terjadi:</p>
+                        <ul>
+                          <li>🗑️ Akun Anda akan dihapus secara permanen</li>
+                          <li>📝 Semua kenangan/memory yang Anda buat akan dihapus</li>
+                          <li>📷 Semua foto yang Anda unggah akan dihapus</li>
+                          <li>🔒 Data ini TIDAK DAPAT dipulihkan</li>
+                        </ul>
+                        <p className="final-warning">
+                          <strong>Tindakan ini tidak dapat dibatalkan!</strong>
+                        </p>
+                      </div>
+                      
+                      <div className="form-actions">
+                        <button 
+                          className="btn btn-secondary"
+                          onClick={() => setActiveTab('profile')}
+                        >
+                          Batal
+                        </button>
+                        <button 
+                          className="btn btn-danger"
+                          onClick={() => handleDeleteStep(1)}
+                        >
+                          <FaTrashAlt /> Saya Mengerti, Lanjutkan
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {deleteConfirmation.step === 1 && (
+                    <div className="delete-confirmation">
+                      <div className="confirmation-box">
+                        <h3>Konfirmasi Penghapusan</h3>
+                        <p>Untuk melanjutkan, ketik <strong>HAPUS AKUN SAYA</strong> di bawah ini:</p>
+                        
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            value={deleteConfirmation.confirmText}
+                            onChange={(e) => setDeleteConfirmation(prev => ({
+                              ...prev,
+                              confirmText: e.target.value
+                            }))}
+                            className="form-control"
+                            placeholder="Ketik: HAPUS AKUN SAYA"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="form-actions">
+                        <button 
+                          className="btn btn-secondary"
+                          onClick={() => handleDeleteStep(0)}
+                        >
+                          Kembali
+                        </button>
+                        <button 
+                          className="btn btn-danger"
+                          disabled={deleteConfirmation.confirmText !== 'HAPUS AKUN SAYA'}
+                          onClick={() => handleDeleteStep(2)}
+                        >
+                          Lanjutkan
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {deleteConfirmation.step === 2 && (
+                    <div className="delete-final">
+                      <div className="final-box">
+                        <h3>Langkah Terakhir</h3>
+                        <p>Masukkan password Anda untuk mengkonfirmasi penghapusan akun:</p>
+                        
+                        <div className="form-group">
+                          <label htmlFor="deletePassword">
+                            <FaLock /> Password Saat Ini
+                          </label>
+                          <input
+                            type="password"
+                            value={deleteConfirmation.password}
+                            onChange={(e) => setDeleteConfirmation(prev => ({
+                              ...prev,
+                              password: e.target.value
+                            }))}
+                            className="form-control"
+                            placeholder="Masukkan password untuk konfirmasi"
+                            required
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="form-actions">
+                        <button 
+                          className="btn btn-secondary"
+                          onClick={() => handleDeleteStep(1)}
+                        >
+                          Kembali
+                        </button>
+                        <button 
+                          className="btn btn-danger"
+                          disabled={!deleteConfirmation.password}
+                          onClick={deleteAccount}
+                        >
+                          <FaTrashAlt /> Hapus Akun Sekarang
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

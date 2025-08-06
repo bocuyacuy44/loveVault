@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendarAlt, FaTags, FaUpload, FaArrowLeft, FaImage, FaTimes } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendarAlt, FaTags, FaUpload, FaArrowLeft, FaImage, FaTimes, FaExpand, FaCompress, FaSearchPlus, FaSearchMinus } from 'react-icons/fa';
 
 // Halaman MemoryDetail dengan design modern minimalis
 const MemoryDetail = () => {
@@ -17,6 +17,12 @@ const MemoryDetail = () => {
     caption: ''
   });
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const [showEditCaptionForm, setShowEditCaptionForm] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [lastPanPosition, setLastPanPosition] = useState({ x: 0, y: 0 });
 
   // Mengambil data kenangan berdasarkan ID
   useEffect(() => {
@@ -138,6 +144,84 @@ const MemoryDetail = () => {
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('id-ID', options);
+  };
+
+  // Fungsi untuk reset modal state
+  const resetModalState = () => {
+    setSelectedPhoto(null);
+    setShowEditCaptionForm(false);
+    setIsFullscreen(false);
+    setZoomLevel(1);
+    setPanPosition({ x: 0, y: 0 });
+    setIsDragging(false);
+  };
+
+  // Fungsi untuk toggle fullscreen
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+    setZoomLevel(1);
+    setPanPosition({ x: 0, y: 0 });
+  };
+
+  // Fungsi untuk zoom in
+  const zoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.5, 5));
+  };
+
+  // Fungsi untuk zoom out
+  const zoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 0.5, 0.5));
+    if (zoomLevel <= 1) {
+      setPanPosition({ x: 0, y: 0 });
+    }
+  };
+
+  // Fungsi untuk handle wheel zoom
+  const handleWheel = (e) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      zoomIn();
+    } else {
+      zoomOut();
+    }
+  };
+
+  // Fungsi untuk handle mouse down
+  const handleMouseDown = (e) => {
+    if (zoomLevel > 1) {
+      setIsDragging(true);
+      setLastPanPosition({ x: e.clientX, y: e.clientY });
+    }
+  };
+
+  // Fungsi untuk handle mouse move
+  const handleMouseMove = (e) => {
+    if (isDragging && zoomLevel > 1) {
+      const deltaX = e.clientX - lastPanPosition.x;
+      const deltaY = e.clientY - lastPanPosition.y;
+      
+      setPanPosition(prev => ({
+        x: prev.x + deltaX,
+        y: prev.y + deltaY
+      }));
+      
+      setLastPanPosition({ x: e.clientX, y: e.clientY });
+    }
+  };
+
+  // Fungsi untuk handle mouse up
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Fungsi untuk double click zoom
+  const handleDoubleClick = () => {
+    if (zoomLevel === 1) {
+      setZoomLevel(2);
+    } else {
+      setZoomLevel(1);
+      setPanPosition({ x: 0, y: 0 });
+    }
   };
 
   if (loading) {
@@ -275,6 +359,10 @@ const MemoryDetail = () => {
                   onClick={() => {
                     setSelectedPhoto(photo);
                     setPhotoCaption(photo.caption || '');
+                    setShowEditCaptionForm(false);
+                    setIsFullscreen(false);
+                    setZoomLevel(1);
+                    setPanPosition({ x: 0, y: 0 });
                   }}
                 />
                 {photo.caption && <div className="photo-caption">{photo.caption}</div>}
@@ -313,51 +401,117 @@ const MemoryDetail = () => {
 
       {/* Photo Modal */}
       {selectedPhoto && (
-        <div className="photo-modal-overlay" onClick={() => setSelectedPhoto(null)}>
-          <div className="photo-modal" onClick={(e) => e.stopPropagation()}>
-            <button 
-              className="modal-close"
-              onClick={() => setSelectedPhoto(null)}
-            >
-              <FaTimes />
-            </button>
+        <div 
+          className={`photo-modal-overlay ${isFullscreen ? 'fullscreen' : ''}`} 
+          onClick={() => resetModalState()}
+        >
+          <div className={`photo-modal ${isFullscreen ? 'fullscreen' : ''}`} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-controls-top">
+              <button 
+                className="modal-close"
+                onClick={() => resetModalState()}
+                title="Tutup"
+              >
+                <FaTimes />
+              </button>
+              
+              <button 
+                className="modal-edit"
+                onClick={() => setShowEditCaptionForm(!showEditCaptionForm)}
+                title="Edit caption"
+              >
+                <FaEdit />
+              </button>
+              
+              <button 
+                className="modal-fullscreen"
+                onClick={toggleFullscreen}
+                title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+              >
+                {isFullscreen ? <FaCompress /> : <FaExpand />}
+              </button>
+            </div>
+            
+            {/* Zoom Controls */}
+            {isFullscreen && (
+              <div className="zoom-controls">
+                <button 
+                  className="zoom-btn"
+                  onClick={zoomIn}
+                  disabled={zoomLevel >= 5}
+                  title="Zoom In"
+                >
+                  <FaSearchPlus />
+                </button>
+                <span className="zoom-level">{Math.round(zoomLevel * 100)}%</span>
+                <button 
+                  className="zoom-btn"
+                  onClick={zoomOut}
+                  disabled={zoomLevel <= 0.5}
+                  title="Zoom Out"
+                >
+                  <FaSearchMinus />
+                </button>
+              </div>
+            )}
             
             <div className="modal-body">
-              <div className="modal-image-container">
+              <div 
+                className={`modal-image-container ${isFullscreen ? 'fullscreen' : ''}`}
+                onWheel={isFullscreen ? handleWheel : undefined}
+                onMouseDown={isFullscreen ? handleMouseDown : undefined}
+                onMouseMove={isFullscreen ? handleMouseMove : undefined}
+                onMouseUp={isFullscreen ? handleMouseUp : undefined}
+                onMouseLeave={isFullscreen ? handleMouseUp : undefined}
+                style={{
+                  cursor: isFullscreen && zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+                }}
+              >
                 <img
                   src={`/uploads/${selectedPhoto.file_path}`}
                   alt={selectedPhoto.caption || 'Foto kenangan'}
-                  className="modal-photo"
+                  className={`modal-photo ${isFullscreen ? 'fullscreen' : ''}`}
+                  style={isFullscreen ? {
+                    transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
+                    transition: isDragging ? 'none' : 'transform 0.2s ease'
+                  } : {}}
+                  onDoubleClick={isFullscreen ? handleDoubleClick : undefined}
+                  draggable={false}
                 />
               </div>
               
-              <div className="modal-controls">
-                <div className="caption-edit">
-                  <label>Caption Foto</label>
-                  <input
-                    type="text"
-                    value={photoCaption}
-                    onChange={(e) => setPhotoCaption(e.target.value)}
-                    className="form-control"
-                    placeholder="Tambahkan caption"
-                  />
+              {!isFullscreen && showEditCaptionForm && (
+                <div className="modal-controls">
+                  <div className="caption-edit">
+                    <label>Caption Foto</label>
+                    <input
+                      type="text"
+                      value={photoCaption}
+                      onChange={(e) => setPhotoCaption(e.target.value)}
+                      className="form-control"
+                      placeholder="Tambahkan caption"
+                    />
+                  </div>
+                  
+                  <div className="modal-actions">
+                    <button
+                      onClick={() => {
+                        updatePhotoCaption(selectedPhoto.id);
+                        setShowEditCaptionForm(false);
+                      }}
+                      className="btn btn-primary"
+                    >
+                      <FaEdit /> Simpan Caption
+                    </button>
+                    <button
+                      onClick={() => deletePhoto(selectedPhoto.id)}
+                      className="btn btn-danger"
+                    >
+                      <FaTrash /> Hapus Foto
+                    </button>
+                  </div>
                 </div>
-                
-                <div className="modal-actions">
-                  <button
-                    onClick={() => updatePhotoCaption(selectedPhoto.id)}
-                    className="btn btn-primary"
-                  >
-                    <FaEdit /> Simpan Caption
-                  </button>
-                  <button
-                    onClick={() => deletePhoto(selectedPhoto.id)}
-                    className="btn btn-danger"
-                  >
-                    <FaTrash /> Hapus Foto
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
