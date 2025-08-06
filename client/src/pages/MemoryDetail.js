@@ -322,37 +322,41 @@ const MemoryDetail = () => {
               <FaTimes />
             </button>
             
-            <img
-              src={`/uploads/${selectedPhoto.file_path}`}
-              alt={selectedPhoto.caption || 'Foto kenangan'}
-              className="modal-photo"
-            />
-            
-            <div className="modal-content">
-              <div className="caption-edit">
-                <label>Caption Foto</label>
-                <input
-                  type="text"
-                  value={photoCaption}
-                  onChange={(e) => setPhotoCaption(e.target.value)}
-                  className="form-control"
-                  placeholder="Tambahkan caption"
+            <div className="modal-body">
+              <div className="modal-image-container">
+                <img
+                  src={`/uploads/${selectedPhoto.file_path}`}
+                  alt={selectedPhoto.caption || 'Foto kenangan'}
+                  className="modal-photo"
                 />
               </div>
               
-              <div className="modal-actions">
-                <button
-                  onClick={() => updatePhotoCaption(selectedPhoto.id)}
-                  className="btn btn-primary"
-                >
-                  <FaEdit /> Simpan Caption
-                </button>
-                <button
-                  onClick={() => deletePhoto(selectedPhoto.id)}
-                  className="btn btn-danger"
-                >
-                  <FaTrash /> Hapus Foto
-                </button>
+              <div className="modal-controls">
+                <div className="caption-edit">
+                  <label>Caption Foto</label>
+                  <input
+                    type="text"
+                    value={photoCaption}
+                    onChange={(e) => setPhotoCaption(e.target.value)}
+                    className="form-control"
+                    placeholder="Tambahkan caption"
+                  />
+                </div>
+                
+                <div className="modal-actions">
+                  <button
+                    onClick={() => updatePhotoCaption(selectedPhoto.id)}
+                    className="btn btn-primary"
+                  >
+                    <FaEdit /> Simpan Caption
+                  </button>
+                  <button
+                    onClick={() => deletePhoto(selectedPhoto.id)}
+                    className="btn btn-danger"
+                  >
+                    <FaTrash /> Hapus Foto
+                  </button>
+                </div>
               </div>
             </div>
           </div>

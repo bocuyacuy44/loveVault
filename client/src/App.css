@@ -1038,7 +1038,7 @@ body {
   margin-bottom: var(--spacing-sm);
 }
 
-/* Photo Modal */
+/* Photo Modal - New Responsive Design */
 .photo-modal-overlay {
   position: fixed;
   top: 0;
@@ -1050,50 +1050,76 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: var(--spacing-md);
+  padding: var(--spacing-lg);
 }
 
 .photo-modal {
   background: var(--bg-card);
   border-radius: var(--radius-xl);
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: hidden;
+  width: min(900px, 90vw);
+  max-height: 85vh;
   box-shadow: var(--shadow-xl);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .modal-close {
   position: absolute;
   top: var(--spacing-md);
   right: var(--spacing-md);
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   color: white;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 10;
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
+  font-size: 1.1rem;
 }
 
 .modal-close:hover {
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.9);
+  transform: scale(1.05);
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.modal-image-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  min-height: 300px;
+  max-height: 500px;
 }
 
 .modal-photo {
   max-width: 100%;
-  max-height: 70vh;
+  max-height: 100%;
   object-fit: contain;
-  display: block;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
-.modal-content {
-  padding: var(--spacing-lg);
+.modal-controls {
+  flex: 0 0 auto;
+  padding: var(--spacing-xl);
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-primary);
 }
 
 .caption-edit {
@@ -1682,63 +1708,6 @@ textarea.form-control {
   margin-bottom: var(--spacing-sm);
 }
 
-/* Photo Modal */
-.photo-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: var(--spacing-md);
-}
-
-.photo-modal {
-  background: var(--bg-card);
-  border-radius: var(--radius-xl);
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: hidden;
-  box-shadow: var(--shadow-xl);
-  position: relative;
-}
-
-.modal-close {
-  position: absolute;
-  top: var(--spacing-md);
-  right: var(--spacing-md);
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  transition: background var(--transition-fast);
-}
-
-.modal-close:hover {
-  background: rgba(0, 0, 0, 0.7);
-}
-
-.modal-photo {
-  max-width: 100%;
-  max-height: 70vh;
-  object-fit: contain;
-  display: block;
-}
-
-.modal-content {
-  padding: var(--spacing-lg);
-}
 
 .caption-edit {
   margin-bottom: var(--spacing-lg);
