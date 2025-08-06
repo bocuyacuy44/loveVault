@@ -35,7 +35,7 @@ exports.uploadPhoto = async (req, res) => {
     // Simpan informasi foto ke database
     const photo = await Photo.create({
       memory_id: memory.id,
-      file_path: `/uploads/${path.basename(req.file.path)}`,
+      file_path: req.file.filename, // Simpan hanya nama file
       caption: req.body.caption || ''
     });
 
@@ -134,7 +134,7 @@ exports.deletePhoto = async (req, res) => {
     }
 
     // Hapus file fisik
-    const filePath = path.join(__dirname, '..', photo.file_path);
+    const filePath = path.join(__dirname, '..', 'uploads', photo.file_path);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }

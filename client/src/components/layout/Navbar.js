@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaHeart, FaSignOutAlt, FaUser, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
+import { FaHeart, FaSignOutAlt, FaUser, FaSignInAlt, FaUserPlus, FaPlus } from 'react-icons/fa';
 import AuthContext from '../../context/AuthContext';
 
-// Komponen Navbar untuk navigasi aplikasi
+// Komponen Navbar Modern dengan design minimalis
 const Navbar = () => {
   const { isAuthenticated, logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -18,19 +18,14 @@ const Navbar = () => {
   const authLinks = (
     <ul>
       <li>
-        <Link to="/memories/create">
-          <FaHeart /> Tambah Kenangan
-        </Link>
-      </li>
-      <li>
         <Link to="/profile">
           <FaUser /> {user && user.username}
         </Link>
       </li>
       <li>
-        <a href="#!" onClick={handleLogout}>
+        <button onClick={handleLogout} className="btn btn-secondary">
           <FaSignOutAlt /> Keluar
-        </a>
+        </button>
       </li>
     </ul>
   );
@@ -39,12 +34,12 @@ const Navbar = () => {
   const guestLinks = (
     <ul>
       <li>
-        <Link to="/login">
+        <Link to="/login" className="btn btn-secondary">
           <FaSignInAlt /> Masuk
         </Link>
       </li>
       <li>
-        <Link to="/register">
+        <Link to="/register" className="btn btn-primary">
           <FaUserPlus /> Daftar
         </Link>
       </li>
@@ -53,12 +48,14 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <h1 className="brand">
-        <Link to="/">
+      <div className="navbar-content">
+        <Link to="/" className="brand">
           <FaHeart /> LoveVault
         </Link>
-      </h1>
-      {isAuthenticated ? authLinks : guestLinks}
+        <div className="navbar-menu">
+          {isAuthenticated ? authLinks : guestLinks}
+        </div>
+      </div>
     </nav>
   );
 };

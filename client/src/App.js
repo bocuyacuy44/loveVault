@@ -19,6 +19,7 @@ import NotFound from './pages/NotFound';
 
 // Styles
 import './App.css';
+import './components/datepicker-custom.css';
 
 function App() {
   return (

@@ -1,10 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { FaSignInAlt } from 'react-icons/fa';
+import { FaSignInAlt, FaEnvelope, FaLock } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
 
-// Halaman Login untuk autentikasi pengguna
+// Halaman Login dengan design modern minimalis
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -45,42 +45,54 @@ const Login = () => {
 
   return (
     <div className="form-container">
-      <h1>
-        <FaSignInAlt /> Masuk
-      </h1>
-      <p>Masuk ke akun Anda untuk mengakses kenangan</p>
+      <div className="form-header">
+        <h1>
+          <FaSignInAlt /> Selamat Datang Kembali
+        </h1>
+        <p>Masuk ke akun Anda untuk mengakses kenangan indah</p>
+      </div>
 
-      <form onSubmit={onSubmit}>
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={email}
-            onChange={onChange}
-            className="form-control"
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={password}
-            onChange={onChange}
-            className="form-control"
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary btn-block">
-          Masuk
-        </button>
-      </form>
+      <div className="form-body">
+        <form onSubmit={onSubmit}>
+          <div className="form-group">
+            <label htmlFor="email">
+              <FaEnvelope /> Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={email}
+              onChange={onChange}
+              className="form-control"
+              placeholder="Masukkan email Anda"
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password">
+              <FaLock /> Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={password}
+              onChange={onChange}
+              className="form-control"
+              placeholder="Masukkan password Anda"
+              required
+            />
+          </div>
+          
+          <button type="submit" className="btn btn-primary btn-block btn-lg">
+            <FaSignInAlt /> Masuk
+          </button>
+        </form>
 
-      <p className="my-1">
-        Belum punya akun? <Link to="/register">Daftar</Link>
-      </p>
+        <p className="text-center my-4">
+          Belum punya akun? <Link to="/register" style={{color: 'var(--accent-color)', fontWeight: '500'}}>Daftar sekarang</Link>
+        </p>
+      </div>
     </div>
   );
 };

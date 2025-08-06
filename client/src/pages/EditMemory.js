@@ -4,9 +4,9 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { FaSave, FaTimes, FaEdit } from 'react-icons/fa';
+import { FaSave, FaTimes, FaEdit, FaArrowLeft, FaMapMarkerAlt, FaCalendarAlt, FaTag, FaFileAlt } from 'react-icons/fa';
 
-// Halaman EditMemory untuk mengedit kenangan yang sudah ada
+// Halaman EditMemory dengan design modern minimalis
 const EditMemory = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -95,86 +95,133 @@ const EditMemory = () => {
   }
 
   return (
-    <div className="form-container memory-form">
-      <h1>
-        <FaEdit /> Edit Kenangan
-      </h1>
+    <div>
+      {/* Header */}
+      <div className="page-header">
+        <button onClick={() => navigate(`/memories/${id}`)} className="btn btn-secondary">
+          <FaArrowLeft /> Kembali
+        </button>
+        <h1>
+          <FaEdit /> Edit Kenangan
+        </h1>
+      </div>
 
-      <form onSubmit={onSubmit}>
-        <div className="form-group">
-          <label htmlFor="title">Judul Kenangan</label>
-          <input
-            type="text"
-            name="title"
-            value={title}
-            onChange={onChange}
-            className="form-control"
-            required
-          />
+      {/* Form Card */}
+      <div className="create-memory-container">
+        <div className="create-memory-card">
+          <div className="card-header">
+            <h2>Edit Kenangan</h2>
+            <p>Perbarui informasi tentang kenangan Anda</p>
+          </div>
+
+          <div className="card-body">
+            <form onSubmit={onSubmit}>
+              <div className="form-group">
+                <label htmlFor="title">
+                  <FaFileAlt /> Judul Kenangan *
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={title}
+                  onChange={onChange}
+                  className="form-control"
+                  placeholder="Berikan judul yang bermakna untuk kenangan ini"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="description">
+                  <FaFileAlt /> Deskripsi
+                </label>
+                <textarea
+                  name="description"
+                  value={description}
+                  onChange={onChange}
+                  className="form-control"
+                  rows="5"
+                  placeholder="Ceritakan lebih detail tentang kenangan ini..."
+                ></textarea>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="location">
+                    <FaMapMarkerAlt /> Lokasi
+                  </label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={location}
+                    onChange={onChange}
+                    className="form-control"
+                    placeholder="Jakarta, Bali, Paris, dll."
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="memory_date">
+                    <FaCalendarAlt /> Tanggal Kenangan
+                  </label>
+                  <DatePicker
+                    selected={memory_date}
+                    onChange={handleDateChange}
+                    className="form-control"
+                    dateFormat="dd/MM/yyyy"
+                    maxDate={new Date()}
+                    showYearDropdown
+                    scrollableYearDropdown
+                    yearDropdownItemNumber={15}
+                    placeholderText="Pilih tanggal"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="tags">
+                  <FaTag /> Tag (pisahkan dengan koma)
+                </label>
+                <input
+                  type="text"
+                  name="tags"
+                  value={tags}
+                  onChange={onChange}
+                  className="form-control"
+                  placeholder="liburan, keluarga, ulang tahun, romantis"
+                />
+                <small className="form-hint">
+                  Tag membantu Anda mengorganisir dan mencari kenangan dengan mudah
+                </small>
+              </div>
+
+              <div className="form-actions">
+                <button type="submit" className="btn btn-primary btn-lg">
+                  <FaSave /> Simpan Perubahan
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/memories/${id}`)}
+                  className="btn btn-secondary btn-lg"
+                >
+                  <FaTimes /> Batal
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="description">Deskripsi</label>
-          <textarea
-            name="description"
-            value={description}
-            onChange={onChange}
-            className="form-control"
-            rows="5"
-          ></textarea>
+        {/* Info Card */}
+        <div className="info-card">
+          <h3>Tips Edit Kenangan</h3>
+          <ul>
+            <li>Pastikan judul tetap deskriptif dan mudah diingat</li>
+            <li>Update lokasi jika ada perubahan</li>
+            <li>Tambahkan atau edit tag sesuai kebutuhan</li>
+            <li>Jangan lupa simpan perubahan setelah selesai edit</li>
+          </ul>
         </div>
-
-        <div className="form-group">
-          <label htmlFor="location">Lokasi</label>
-          <input
-            type="text"
-            name="location"
-            value={location}
-            onChange={onChange}
-            className="form-control"
-            placeholder="Contoh: Jakarta, Bali, dll."
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="memory_date">Tanggal Kenangan</label>
-          <DatePicker
-            selected={memory_date}
-            onChange={handleDateChange}
-            className="form-control"
-            dateFormat="dd/MM/yyyy"
-            maxDate={new Date()}
-            showYearDropdown
-            scrollableYearDropdown
-            yearDropdownItemNumber={15}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="tags">Tag (pisahkan dengan koma)</label>
-          <input
-            type="text"
-            name="tags"
-            value={tags}
-            onChange={onChange}
-            className="form-control"
-            placeholder="Contoh: liburan, keluarga, ulang tahun"
-          />
-        </div>
-
-        <div className="form-actions">
-          <button type="submit" className="btn btn-primary">
-            <FaSave /> Simpan Perubahan
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate(`/memories/${id}`)}
-            className="btn btn-secondary"
-          >
-            <FaTimes /> Batal
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };

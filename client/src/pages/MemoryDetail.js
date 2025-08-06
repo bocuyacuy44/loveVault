@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendarAlt, FaTags, FaUpload } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendarAlt, FaTags, FaUpload, FaArrowLeft, FaImage, FaTimes } from 'react-icons/fa';
 
-// Halaman MemoryDetail untuk menampilkan detail kenangan dan foto-fotonya
+// Halaman MemoryDetail dengan design modern minimalis
 const MemoryDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -70,7 +70,7 @@ const MemoryDetail = () => {
     formData.append('caption', uploadForm.caption);
 
     try {
-      await axios.post(`/api/photos/${id}`, formData, {
+      await axios.post(`/api/photos/memory/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -149,9 +149,28 @@ const MemoryDetail = () => {
   }
 
   return (
-    <div className="memory-detail">
+    <div>
+      {/* Header Section */}
       <div className="memory-detail-header">
-        <h1>{memory.title}</h1>
+        <button onClick={() => navigate('/')} className="btn btn-secondary">
+          <FaArrowLeft /> Kembali
+        </button>
+        
+        <div className="header-content">
+          <h1>{memory.title}</h1>
+          
+          <div className="memory-detail-info">
+            {memory.location && (
+              <span className="info-item">
+                <FaMapMarkerAlt /> {memory.location}
+              </span>
+            )}
+            <span className="info-item">
+              <FaCalendarAlt /> {formatDate(memory.memory_date || memory.created_at)}
+            </span>
+          </div>
+        </div>
+
         <div className="memory-actions">
           <Link to={`/memories/${id}/edit`} className="btn btn-secondary">
             <FaEdit /> Edit
@@ -162,26 +181,20 @@ const MemoryDetail = () => {
         </div>
       </div>
 
-      <div className="memory-detail-info">
-        {memory.location && (
-          <p className="memory-location">
-            <FaMapMarkerAlt /> {memory.location}
-          </p>
-        )}
-        <p className="memory-date">
-          <FaCalendarAlt /> {formatDate(memory.memory_date || memory.created_at)}
-        </p>
-      </div>
-
+      {/* Description Section */}
       {memory.description && (
-        <div className="memory-description">
+        <div className="memory-description-card">
+          <h3>Deskripsi</h3>
           <p>{memory.description}</p>
         </div>
       )}
 
+      {/* Tags Section */}
       {memory.Tags && memory.Tags.length > 0 && (
-        <div className="memory-tags">
-          <FaTags /> 
+        <div className="memory-tags-card">
+          <h3>
+            <FaTags /> Tag
+          </h3>
           <div className="tags">
             {memory.Tags.map((tag) => (
               <span key={tag.id} className="tag">
@@ -192,9 +205,12 @@ const MemoryDetail = () => {
         </div>
       )}
 
+      {/* Photo Section */}
       <div className="photo-section">
         <div className="photo-header">
-          <h2>Foto Kenangan</h2>
+          <h3>
+            <FaImage /> Galeri Foto ({memory.photos ? memory.photos.length : 0})
+          </h3>
           <button 
             className="btn btn-primary" 
             onClick={() => setShowUploadForm(!showUploadForm)}
@@ -204,7 +220,8 @@ const MemoryDetail = () => {
         </div>
 
         {showUploadForm && (
-          <div className="upload-form">
+          <div className="upload-form-card">
+            <h4>Unggah Foto Baru</h4>
             <form onSubmit={uploadPhoto}>
               <div className="form-group">
                 <label htmlFor="photo">Pilih Foto</label>
@@ -218,7 +235,7 @@ const MemoryDetail = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="caption">Caption</label>
+                <label htmlFor="caption">Caption (opsional)</label>
                 <input
                   type="text"
                   id="caption"
@@ -228,20 +245,29 @@ const MemoryDetail = () => {
                   placeholder="Deskripsi singkat foto"
                 />
               </div>
-              <button 
-                type="submit" 
-                className="btn btn-success"
-                disabled={!uploadForm.file}
-              >
-                Unggah Foto
-              </button>
+              <div className="form-actions">
+                <button 
+                  type="submit" 
+                  className="btn btn-primary"
+                  disabled={!uploadForm.file}
+                >
+                  <FaUpload /> Unggah Foto
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary"
+                  onClick={() => setShowUploadForm(false)}
+                >
+                  <FaTimes /> Batal
+                </button>
+              </div>
             </form>
           </div>
         )}
 
-        {memory.Photos && memory.Photos.length > 0 ? (
+        {memory.photos && memory.photos.length > 0 ? (
           <div className="photo-gallery">
-            {memory.Photos.map((photo) => (
+            {memory.photos.map((photo) => (
               <div key={photo.id} className="photo-item">
                 <img
                   src={`/uploads/${photo.file_path}`}
@@ -252,26 +278,59 @@ const MemoryDetail = () => {
                   }}
                 />
                 {photo.caption && <div className="photo-caption">{photo.caption}</div>}
+                
+                <div className="photo-overlay">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deletePhoto(photo.id);
+                    }}
+                    className="btn btn-danger btn-sm"
+                    title="Hapus foto"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         ) : (
           <div className="empty-photos">
-            <p>Belum ada foto untuk kenangan ini</p>
+            <div className="empty-icon">
+              <FaImage />
+            </div>
+            <h4>Belum ada foto</h4>
+            <p>Tambahkan foto untuk melengkapi kenangan ini</p>
+            <button 
+              className="btn btn-primary"
+              onClick={() => setShowUploadForm(true)}
+            >
+              <FaUpload /> Tambah Foto Pertama
+            </button>
           </div>
         )}
       </div>
 
+      {/* Photo Modal */}
       {selectedPhoto && (
         <div className="photo-modal-overlay" onClick={() => setSelectedPhoto(null)}>
           <div className="photo-modal" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="modal-close"
+              onClick={() => setSelectedPhoto(null)}
+            >
+              <FaTimes />
+            </button>
+            
             <img
               src={`/uploads/${selectedPhoto.file_path}`}
               alt={selectedPhoto.caption || 'Foto kenangan'}
               className="modal-photo"
             />
-            <div className="modal-actions">
+            
+            <div className="modal-content">
               <div className="caption-edit">
+                <label>Caption Foto</label>
                 <input
                   type="text"
                   value={photoCaption}
@@ -279,25 +338,22 @@ const MemoryDetail = () => {
                   className="form-control"
                   placeholder="Tambahkan caption"
                 />
+              </div>
+              
+              <div className="modal-actions">
                 <button
                   onClick={() => updatePhotoCaption(selectedPhoto.id)}
-                  className="btn btn-secondary"
+                  className="btn btn-primary"
                 >
-                  Simpan Caption
+                  <FaEdit /> Simpan Caption
+                </button>
+                <button
+                  onClick={() => deletePhoto(selectedPhoto.id)}
+                  className="btn btn-danger"
+                >
+                  <FaTrash /> Hapus Foto
                 </button>
               </div>
-              <button
-                onClick={() => deletePhoto(selectedPhoto.id)}
-                className="btn btn-danger"
-              >
-                <FaTrash /> Hapus Foto
-              </button>
-              <button
-                onClick={() => setSelectedPhoto(null)}
-                className="btn btn-primary"
-              >
-                Tutup
-              </button>
             </div>
           </div>
         </div>
